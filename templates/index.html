@@ -1,260 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your New Flask App</title>
-
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Almarai:wght@800&amp;family=Nunito+Sans&amp;display=swap" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroThrift - Neural Rap Generation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vueuse/motion@2.0.0-beta.12"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        royal: {
+                            light: '#B794F4',
+                            DEFAULT: '#7C3AED',
+                            dark: '#4C1D95'
+                        },
+                        gold: {
+                            light: '#FDE68A',
+                            DEFAULT: '#F59E0B',
+                            dark: '#B45309'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
 </head>
+<body class="bg-black text-white font-sans">
+    <div id="app" v-cloak>
+        <!-- Navigation -->
+        <nav class="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-lg z-50 border-b border-royal/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <span class="text-2xl font-bold bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">
+                                NEUROTHRIFT
+                            </span>
+                        </div>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-8">
+                            <a @click="scrollTo('features')" class="cursor-pointer text-gray-300 hover:text-white transition">Features</a>
+                            <a @click="scrollTo('how-it-works')" class="cursor-pointer text-gray-300 hover:text-white transition">How It Works</a>
+                            <a @click="scrollTo('pricing')" class="cursor-pointer text-gray-300 hover:text-white transition">Pricing</a>
+                            <button @click="startCreating" class="bg-gradient-to-r from-royal to-gold text-white px-6 py-2 rounded-full hover:opacity-90 transition">
+                                Start Creating
+                            </button>
+                        </div>
+                    </div>
+                    <div class="md:hidden">
+                        <button @click="mobileMenu = !mobileMenu" class="text-gray-300 hover:text-white">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path v-if="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div v-show="mobileMenu" class="md:hidden bg-black/95 border-b border-royal/20">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a @click="scrollToMobile('features')" class="cursor-pointer block text-gray-300 hover:text-white transition px-3 py-2">Features</a>
+                    <a @click="scrollToMobile('how-it-works')" class="cursor-pointer block text-gray-300 hover:text-white transition px-3 py-2">How It Works</a>
+                    <a @click="scrollToMobile('pricing')" class="cursor-pointer block text-gray-300 hover:text-white transition px-3 py-2">Pricing</a>
+                    <button @click="startCreating" class="w-full mt-2 bg-gradient-to-r from-royal to-gold text-white px-6 py-2 rounded-full hover:opacity-90 transition">
+                        Start Creating
+                    </button>
+                </div>
+            </div>
+        </nav>
 
-<body>
-  <div class="container">
-    <div class="content">
-      <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjY3IDE3NS4yIDE3Ni40IDE3Ni41IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDY3IDE3NS4yIDE3Ni40IDE3Ni41OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0KCS5zdDB7ZmlsbDojRkZGRkZGO30NCjwvc3R5bGU+DQo8ZyBpZD0iWE1MSURfMjI5XyI+DQoJPGcgaWQ9IlhNTElEXzY5MF8iPg0KCQk8ZyBpZD0iWE1MSURfNjkxXyI+DQoJCQk8Zz4NCgkJCQk8ZyBpZD0iWE1MSURfNDRfIj4NCgkJCQkJPGcgaWQ9IlhNTElEXzQ4XyI+DQoJCQkJCQk8cGF0aCBpZD0iWE1MSURfNDlfIiBjbGFzcz0ic3QwIiBkPSJNMTU1LjIsMzUxLjd2LTM0LjJjMzYuMiwwLDY0LjMtMzUuOSw1MC40LTc0Yy01LjEtMTQuMS0xNi40LTI1LjQtMzAuNS0zMC41DQoJCQkJCQkJYy0zOC4xLTEzLjgtNzQsMTQuMi03NCw1MC40bDAsMEg2N2MwLTU3LjcsNTUuOC0xMDIuNywxMTYuMy04My44YzI2LjQsOC4zLDQ3LjUsMjkuMyw1NS43LDU1LjcNCgkJCQkJCQlDMjU3LjksMjk1LjksMjEzLDM1MS43LDE1NS4yLDM1MS43eiIvPg0KCQkJCQk8L2c+DQoJCQkJCTxwb2x5Z29uIGlkPSJYTUxJRF80N18iIGNsYXNzPSJzdDAiIHBvaW50cz0iMTU1LjMsMzE3LjYgMTIxLjMsMzE3LjYgMTIxLjMsMjgzLjYgMTIxLjMsMjgzLjYgMTU1LjMsMjgzLjYgMTU1LjMsMjgzLjYgCQkJCQkNCgkJCQkJCSIvPg0KCQkJCQk8cG9seWdvbiBpZD0iWE1MSURfNDZfIiBjbGFzcz0ic3QwIiBwb2ludHM9IjEyMS4zLDM0My44IDk1LjEsMzQzLjggOTUuMSwzNDMuOCA5NS4xLDMxNy42IDEyMS4zLDMxNy42IAkJCQkJIi8+DQoJCQkJCTxwYXRoIGlkPSJYTUxJRF80NV8iIGNsYXNzPSJzdDAiIGQ9Ik05NS4xLDMxNy42SDczLjJsMCwwdi0yMS45bDAsMGgyMS45bDAsMFYzMTcuNnoiLz4NCgkJCQk8L2c+DQoJCQk8L2c+DQoJCTwvZz4NCgk8L2c+DQo8L2c+DQo8L3N2Zz4NCg==" alt="DigitalOcean Logo" width="100" />
-      <h1>Welcome to your new <a href="https://flask.palletsprojects.com/en/1.1.x/">Flask App</a>!</h1>
+        <!-- Hero Section -->
+        <section class="relative pt-32 pb-20 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="relative z-10">
+                    <h1 
+                        v-motion
+                        :initial="{ opacity: 0, y: 100 }"
+                        :enter="{ opacity: 1, y: 0 }"
+                        class="text-5xl md:text-7xl font-bold text-center mb-8"
+                    >
+                        <span class="bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">
+                            AI-Powered Lyrics
+                        </span>
+                        <br />
+                        <span class="text-white">For The Digital Age</span>
+                    </h1>
+                    <p 
+                        v-motion
+                        :initial="{ opacity: 0, y: 100 }"
+                        :enter="{ opacity: 1, y: 0, delay: 200 }"
+                        class="text-xl text-gray-400 text-center max-w-3xl mx-auto mb-12"
+                    >
+                        Generate unique rap lyrics with the power of neural networks. 
+                        No signup required. Just pure creativity at your fingertips.
+                    </p>
+                    <div 
+                        v-motion
+                        :initial="{ opacity: 0, y: 100 }"
+                        :enter="{ opacity: 1, y: 0, delay: 400 }"
+                        class="flex flex-col sm:flex-row justify-center gap-4"
+                    >
+                        <button @click="startCreating" class="bg-gradient-to-r from-royal to-gold text-white px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition">
+                            Start Creating Now
+                        </button>
+                        <button @click="scrollTo('how-it-works')" class="border border-royal/30 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-royal/10 transition">
+                            See How It Works
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Animated background elements -->
+            <div class="absolute top-0 left-0 right-0 bottom-0 -z-10">
+                <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-royal/30 rounded-full filter blur-3xl animate-pulse"></div>
+                <div class="absolute bottom-1/4 right-1/4 w-72 h-72 bg-gold/20 rounded-full filter blur-3xl animate-pulse delay-1000"></div>
+            </div>
+        </section>
 
-      <p>
-        This application is an example of how to deploy a Flask Application to DigitalOcean's App
-        Platform. Check out their <a href="https://flask.palletsprojects.com/en/1.1.x/quickstart/">documentation</a> to
-        learn more about flask.
-      </p>
+        <!-- Features Section -->
+        <section id="features" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center mb-16">
+                    <span class="bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">
+                        Powerful Features
+                    </span>
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div 
+                        v-for="(feature, index) in features" 
+                        :key="index"
+                        v-motion
+                        :initial="{ opacity: 0, y: 100 }"
+                        :enter="{ opacity: 1, y: 0, delay: index * 200 }"
+                        class="bg-white/5 p-8 rounded-2xl border border-royal/20 hover:border-royal/50 transition group"
+                    >
+                        <div class="text-4xl mb-4 group-hover:scale-110 transition">{{ feature.icon }}</div>
+                        <h3 class="text-xl font-semibold mb-2">{{ feature.title }}</h3>
+                        <p class="text-gray-400">{{ feature.description }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="py-20 bg-royal/5">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center mb-16">
+                    <span class="bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">
+                        How It Works
+                    </span>
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div 
+                        v-for="(step, index) in steps" 
+                        :key="index"
+                        v-motion
+                        :initial="{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }"
+                        :enter="{ opacity: 1, x: 0, delay: index * 200 }"
+                        class="relative"
+                    >
+                        <div class="bg-white/5 p-8 rounded-2xl border border-royal/20">
+                            <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-r from-royal to-gold rounded-full flex items-center justify-center text-xl font-bold">
+                                {{ index + 1 }}
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 mt-4">{{ step.title }}</h3>
+                            <p class="text-gray-400">{{ step.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div 
+                    v-motion
+                    :initial="{ opacity: 0, scale: 0.8 }"
+                    :enter="{ opacity: 1, scale: 1 }"
+                    class="bg-gradient-to-r from-royal/20 to-gold/20 rounded-3xl p-12 text-center"
+                >
+                    <h2 class="text-4xl font-bold mb-6">Ready to Create?</h2>
+                    <p class="text-xl text-gray-400 mb-8">
+                        Join thousands of artists using NeuroThrift to generate unique lyrics.
+                    </p>
+                    <button @click="startCreating" class="bg-gradient-to-r from-royal to-gold text-white px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition">
+                        Start Creating For Free
+                    </button>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <div class="links">
-      <a href="https://github.com/MasonEgger/python-slackbot-sampleapp" target="_blank"
-        rel="noopener noreferrer"><strong>Sample Slackbot using Flask</strong>
-        <span>Learn how to build a Slackbot in Python</span>
-      </a>
-      <a href="https://www.digitalocean.com/docs/app-platform/languages-frameworks/python/" target="_blank"
-        rel="noopener noreferrer"><strong>DigitalOcean App Platform Docs for Flask</strong>
-        <span>DigitalOcean's reference documentation for Flask</span>
-      </a>
-      <a href="https://www.digitalocean.com/docs/app-platform/" target="_blank" rel="noopener noreferrer"><strong>App
-          Platform Documentation</strong><span>Learn about DigitalOcean's App Platform</span></a>
-      <a href="https://www.digitalocean.com/docs/droplets/how-to/" target="_blank" rel="noopener noreferrer"><strong>App
-          Platform API Documentation</strong>
-        <span>REST API Documentation for App Platform</span>
-      </a>
-    </div>
-  </div>
+    <script>
+        const { createApp } = Vue
+        const { vMotion } = Motion
 
-  <div id="stripes">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
+        createApp({
+            directives: {
+                motion: vMotion
+            },
+            data() {
+                return {
+                    mobileMenu: false,
+                    features: [
+                        {
+                            icon: '🧠',
+                            title: 'Neural Engine',
+                            description: 'Powered by Claude 3, delivering unique bars every time'
+                        },
+                        {
+                            icon: '⚡️',
+                            title: 'Instant Results',
+                            description: 'Generate complete verses in seconds'
+                        },
+                        {
+                            icon: '🎯',
+                            title: 'Style Control',
+                            description: 'Choose your flow, theme, and mood'
+                        }
+                    ],
+                    steps: [
+                        {
+                            title: 'Choose Your Style',
+                            description: 'Select from multiple rap styles, themes, and moods'
+                        },
+                        {
+                            title: 'Generate Lyrics',
+                            description: 'Our AI engine creates unique verses based on your preferences'
+                        },
+                        {
+                            title: 'Edit & Export',
+                            description: 'Fine-tune your lyrics and export them in your preferred format'
+                        }
+                    ]
+                }
+            },
+            methods: {
+                startCreating() {
+                    window.location.href = '/app'
+                },
+                scrollTo(elementId) {
+                    const element = document.getElementById(elementId)
+                    element?.scrollIntoView({ behavior: 'smooth' })
+                    this.mobileMenu = false
+                },
+                scrollToMobile(elementId) {
+                    this.mobileMenu = false
+                    setTimeout(() => this.scrollTo(elementId), 100)
+                }
+            }
+        }).mount('#app')
+    </script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <style>
+        [v-cloak] {
+            display: none;
+        }
 
-    body {
-      margin: 0;
-      padding: 50px;
-      min-height: 100vh;
-      position: relative;
-      color: #fff;
-      font-family: "Nunito Sans", sans-serif;
-      font-size: 19px;
-    }
+        html {
+            scroll-behavior: smooth;
+        }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      font-family: "Almarai", sans-serif;
-    }
-
-    :root {
-      --background: linear-gradient(150deg,
-          #17acff 15%,
-          #016aff 70%,
-          #68a6ff 94%);
-      --first: #53f;
-      --second: #4553ff;
-      --third: #4f40ff;
-      --fourth: #25ddf5;
-      --fifth: #1fa2ff;
-    }
-
-    #stripes {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: -1;
-      width: 100%;
-      height: 100vw;
-      display: grid;
-      background: var(--background);
-      grid-template-columns: repeat(6, 1fr);
-      grid-template-rows: repeat(4, 1fr);
-      transform: skewY(-12deg);
-      transform-origin: 0;
-    }
-
-    #stripes span {
-      /* border: 1px solid #c00c00; */
-    }
-
-    #stripes span:first-child {
-      grid-column: span 1;
-      background: var(--first);
-    }
-
-    #stripes span:nth-child(2) {
-      grid-column: span 2;
-      background: var(--second);
-    }
-
-    #stripes span:nth-child(3) {
-      grid-column: span 2;
-      background: var(--third);
-    }
-
-    #stripes span:nth-child(4) {
-      grid-column: 6;
-      grid-row: 3;
-      background: var(--fourth);
-    }
-
-    #stripes span:nth-child(5) {
-      grid-column: span 2;
-      grid-row: 4;
-      background: var(--fifth);
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 50px 0;
-    }
-
-    .content {
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-    }
-
-    h1 a {
-      color: #dbf1f5;
-    }
-
-    h1 a:hover {
-      color: #7decff;
-    }
-
-    p {
-      margin-bottom: 50px;
-    }
-     p a {
-      color:chartreuse;
-    }
-    
-    li {
-      text-align: left
-    }
-
-    code {
-      display: inline-block;
-      padding: 3px 6px;
-      margin-left: 3px;
-      margin-right: 3px;
-      border-radius: 5px;
-      font-size: 0.8rem;
-      background: #1a2279;
-      color: #dbf1f5;
-    }
-
-    .links {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .links a {
-      position: relative;
-      display: block;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 5px;
-      padding: 20px;
-      font-size: 1.1rem;
-      text-decoration: none;
-      color: #222;
-      transition: 0.3s ease all;
-      overflow: hidden;
-    }
-
-    .links a:before,
-    .links a:after {
-      font-size: 40px;
-      display: block;
-      position: absolute;
-    }
-
-    .links a:before {
-      content: "";
-      top: -80%;
-      right: -150px;
-      width: 250px;
-      height: 250px;
-      background: rgba(125, 236, 255, 0.6);
-      pointer-events: none;
-      transform: rotate(-25deg);
-      transition: 0.4s cubic-bezier(0.34, 0.31, 0, 1.81) transform;
-    }
-
-    .links a:after {
-      content: "👉";
-      top: 0;
-      bottom: 0;
-      display: flex;
-      align-items: center;
-      right: 30px;
-      transform: translateX(80px);
-      transition: 0.3s cubic-bezier(0.34, 0.31, 0, 1.81) transform;
-    }
-
-    .links a:hover {
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.5);
-    }
-
-    .links a:hover:before {
-      transform: rotate(-25deg) translateX(60px);
-    }
-
-    .links a:hover:after {
-      transform: none;
-    }
-
-    .links a strong,
-    .links a span {
-      position: relative;
-      z-index: 1;
-    }
-
-    .links a strong {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .links a span {
-      color: #787878;
-      font-size: 0.9rem;
-    }
-  </style>
+        ::selection {
+            background: rgb(124, 58, 237, 0.3);
+            color: white;
+        }
+    </style>
 </body>
-
 </html>
